@@ -95,7 +95,7 @@ class AutomationAPI {
 
     public async listPermissions(): Promise<{ message: string, status: ApiStatus, permissions?: Permission[] }> {
         try {
-            const response = await AutomationAPI.userEndpoint.get('/permissions', {
+            const response = await AutomationAPI.userEndpoint.get('/permissions/', {
                 headers: {
                     Authorization: `Bearer ${this.token}`,
                 },
@@ -123,7 +123,7 @@ class AutomationAPI {
 
     public async getBackupJobs(): Promise<{ message: string, status: ApiStatus, jobs?: IBackupJob[] }> {
         try {
-            const reponse = await AutomationAPI.backupEndpoint.get('/jobs', {
+            const reponse = await AutomationAPI.backupEndpoint.get('/jobs/', {
                 headers: {
                     Authorization: `Bearer ${this.token}`,
                 },
@@ -136,7 +136,7 @@ class AutomationAPI {
 
     public async deleteBackupJob(id: string): Promise<{ message: string, status: ApiStatus }> {
         try {
-            const response = await AutomationAPI.backupEndpoint.delete(`/jobs/${id}`, {
+            const response = await AutomationAPI.backupEndpoint.delete(`/jobs/${id}/`, {
                 headers: {
                     Authorization: `Bearer ${this.token}`,
                 },
@@ -149,7 +149,7 @@ class AutomationAPI {
 
     public async createBackupJob(job: IBackupJobCreate): Promise<{ message: string, status: ApiStatus, job?: IBackupJob, errors?: IErrorDetail[] }> {
         try {
-            const response = await AutomationAPI.backupEndpoint.post('/jobs', job, {
+            const response = await AutomationAPI.backupEndpoint.post('/jobs/', job, {
                 headers: {
                     Authorization: `Bearer ${this.token}`,
                 },

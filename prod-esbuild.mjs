@@ -11,7 +11,7 @@ import path from 'path';
 esbuild
     .context({
         sourcemap: true,
-        entryPoints: ["frontend/index.tsx", "frontend/resources/styles/index.scss"],
+        entryPoints: ["src/index.tsx", "src/resources/styles/index.scss"],
         outdir: "public/assets",
         bundle: true,
         minify: true,
