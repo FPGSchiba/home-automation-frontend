@@ -1,5 +1,7 @@
 .idea/
 
+node_modules
+
 public/assets/frontend/
 public/assets/resources/
 public/assets/index.js
