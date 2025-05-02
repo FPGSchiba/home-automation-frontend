@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 import { IUser } from "../store/types";
+import fetch from "sync-fetch";
+import { parse as yamlParse } from "yaml";
 
 export function setUserInfoToCookies(data: { user: IUser, token: string }): string | undefined {
     return Cookies.set('userInfo', JSON.stringify(data), { secure: true });
@@ -67,4 +69,9 @@ export const stringToColour = (str: string) => {
     }
     console.log(colour)
     return colour;
+}
+
+export const getFrontendConfig = (): any | undefined => {
+    const resp = fetch('/conf.yaml', {});
+    return yamlParse(resp.text())["frontend"];
 }

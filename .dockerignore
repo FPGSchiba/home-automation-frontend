@@ -1,0 +1,9 @@
+# Node modules
+node_modules/
+
+# WebStorm files
+.idea/
+
+# Built out files
+public/assets/resources/
+public/assets/index.js

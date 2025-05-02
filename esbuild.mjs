@@ -6,6 +6,7 @@ import plugin from 'node-stdlib-browser/helpers/esbuild/plugin';
 import stdLibBrowser from 'node-stdlib-browser';
 import { YAMLPlugin } from "esbuild-yaml";
 import path from 'path';
+import { copy } from 'esbuild-plugin-copy';
 
 esbuild
     .context({
@@ -28,6 +29,13 @@ esbuild
             }),
             plugin(stdLibBrowser),
             YAMLPlugin({}),
+            copy({
+                resolveFrom: "cwd",
+                assets: {
+                    from: ['src/conf.yaml'],
+                    to: ['public/assets'],
+                }
+            })
         ],
         loader: {
             ".png": "dataurl",
