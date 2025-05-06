@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosInstance } from "axios";
 import https from 'https';
-import {IBackupJob, IBackupJobCreate, IErrorDetail, IUserInfo} from "../store/types";
+import {IBackupJob, IBackupJobCreate, IBackupJobType, IErrorDetail, IUserInfo} from "../store/types";
 import {Permission} from "../store/user";
 import {getFrontendConfig} from "./util";
 
@@ -134,6 +134,16 @@ class AutomationAPI {
         }
     }
 
+    public async getBackupJobTypes(): Promise<{ message: string, status: ApiStatus, jobTypes?: IBackupJobType[] }> {
+        this.ensureEndpoints();
+        try {
+            const response = await AutomationAPI.backupEndpoint.get('/job-types');
+            return response.data;
+        } catch (reason) {
+            return { message: reason.response?.data?.message || reason.message, status: ApiStatus.ERROR};
+        }
+    }
+
     public async getBackupJobs(): Promise<{ message: string, status: ApiStatus, jobs?: IBackupJob[] }> {
         this.ensureEndpoints();
         try {
@@ -147,7 +157,7 @@ class AutomationAPI {
     public async deleteBackupJob(id: string): Promise<{ message: string, status: ApiStatus }> {
         this.ensureEndpoints();
         try {
-            const response = await AutomationAPI.backupEndpoint.delete(`/jobs/${id}/`);
+            const response = await AutomationAPI.backupEndpoint.delete(`/jobs/${id}`);
             return response.data;
         } catch (reason) {
             return {message: reason.response?.data?.message || reason.message, status: ApiStatus.ERROR};

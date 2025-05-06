@@ -25,6 +25,7 @@
     "@sentry/react": "^8.26.0",
     "@types/node": "^22.7.4",
     "axios": "^1.8.2",
+    "cron-validate": "^1.5.2",
     "esbuild": "^0.23.1",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-yaml": "^0.0.1",

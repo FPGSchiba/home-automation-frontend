@@ -1,14 +1,16 @@
 import * as React from "react";
 import Typography from "@mui/material/Typography";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
-import {Backdrop, Box, CircularProgress, Modal, Paper} from "@mui/material";
+import {Backdrop, Box, CircularProgress, FormControl, InputLabel, MenuItem, Modal, Paper, Select} from "@mui/material";
 import Button from "@mui/material/Button";
 import {useBackupStore} from "../../store/backup";
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {useNotificationStore} from "../../store/notification";
 import IconButton from "@mui/material/IconButton";
 import ReplayIcon from '@mui/icons-material/Replay';
 import {useNavigate} from "react-router-dom";
+import DynamicConfigForm, { DynamicConfigFormHandle } from "../../components/DynamicBackupForm";
+import {IBackupJobCreate} from "../../store/types";
 
 const paginationModel = {page: 0, pageSize: 10};
 const style = {
@@ -26,6 +28,10 @@ const style = {
 export default function BackupJobList() {
     const backupJobs = useBackupStore((state) => state.backupJobs);
     const fetchBackupJobs = useBackupStore((state) => state.fetchBackupJobs);
+
+    const fetchBackupJobTypes = useBackupStore((state) => state.fetchBackupJobTypes);
+    const jobTypes = useBackupStore((state) => state.jobTypes);
+
     const notify = useNotificationStore((state) => state.notify);
 
     const deleteBackupJobModalOpen = useBackupStore((state) => state.backupJobDeleteModalOpen);
@@ -40,6 +46,9 @@ export default function BackupJobList() {
     const navigate = useNavigate();
     const [fetching, setFetching] = React.useState(false);
     const [fetched, setFetched] = React.useState(false);
+    const [createJobType, setCreateJobType] = React.useState("");
+
+    const formRef = useRef<DynamicConfigFormHandle>(null);
 
     const columns: GridColDef[] = [
         {
@@ -113,13 +122,47 @@ export default function BackupJobList() {
         setFetched(true);
     }
 
+    const getBackupJobTypes = () => {
+        fetchBackupJobTypes().then((res) => {
+            if (!res.success) {
+                notify({
+                    message: res.message,
+                    level: "error",
+                    title: "Could not fetch backup job types",
+                })
+            }
+        })
+    }
+
     const handleClose = () => {
         setDeleteBackupJobModalOpen(false, "");
+    }
+
+    const handleJobCreate = (data: IBackupJobCreate) => {
+        createBackupJob(data).then((res) => {
+            if (!res.success) {
+                notify({
+                    message: res.message,
+                    level: "error",
+                    title: "Could not create backup job",
+                })
+                console.log(res.errors);
+            } else {
+                notify({
+                    message: res.message,
+                    level: "success",
+                    title: "Created backup job",
+                })
+            }
+        })
     }
 
     useEffect(() => {
         if (backupJobs.length === 0 && !fetched) {
             getBackupJobs();
+        }
+        if (jobTypes.length === 0) {
+            getBackupJobTypes();
         }
     })
 
@@ -166,12 +209,36 @@ export default function BackupJobList() {
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Create Backup Job
                     </Typography>
-                    <form>
-                        To be Done
-                    </form>
+                    <div>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Job Type</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={createJobType}
+                                label="job-type"
+                                onChange={(event) => {
+                                    console.log(event.target.value);
+                                    setCreateJobType(event.target.value);
+                                }}
+                            >
+                                { jobTypes.map(jobType => (
+                                    <MenuItem key={jobType.id} value={jobType.identifier} >{jobType.name}</MenuItem>
+                                )) }
+                            </Select>
+                        </FormControl>
+                        {
+                            jobTypes.filter(jobType => jobType.identifier === createJobType).length === 1 ?
+                            <DynamicConfigForm ref={formRef} backupJobType={jobTypes.filter(jobType => jobType.identifier === createJobType)[0]} onSubmit={handleJobCreate} /> : <></>
+                        }
+                    </div>
                     <div className="backup backup-job-list backup-job-list-cmodal-buttons">
-                        <Button variant="contained" color="success" onClick={() => {
-                            setCreateBackupJobModalOpen(false);
+                        <Button variant="contained" color="success" onClick={async () => {
+                            const isValid = await formRef.current?.submit();
+                            if (isValid) {
+                                setCreateJobType("")
+                                setCreateBackupJobModalOpen(false);
+                            }
                         }}>Save</Button>
                         <Button variant="contained" color="error" onClick={() => {
                             setCreateBackupJobModalOpen(false);

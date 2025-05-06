@@ -30,6 +30,19 @@ export interface IUserInfo  extends IUser {
     token: string
 }
 
+export interface IBackupJobTypeConfigurationField {
+    name: string
+    type: string
+    description: string
+}
+
+export interface IBackupJobType {
+    id: string
+    identifier: string
+    name: string
+    configurationFields: IBackupJobTypeConfigurationField[]
+}
+
 export interface IBackupJob {
     id: string,
     name: string,
@@ -41,7 +54,7 @@ export interface IBackupJob {
 
 export interface IBackupJobCreate {
     name: string,
-    identifier: string,
+    jobTypeIdentifier: string,
     configuration: any
     schedule: string
 }

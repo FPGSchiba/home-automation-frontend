@@ -1,4 +1,4 @@
-import {IBackupJob, IBackupJobCreate, IErrorDetail} from "./types";
+import {IBackupJob, IBackupJobCreate, IBackupJobType, IErrorDetail} from "./types";
 import {create} from "zustand";
 import automationBackend, {ApiStatus} from "../services/automation.backend";
 
@@ -7,14 +7,16 @@ type BackupState = {
     backupJobDeleteModalOpen: boolean
     backupJobDeleteId: string
     backupJobCreateModalOpen: boolean
+    jobTypes: IBackupJobType[]
 }
 
 type BackupActions = {
     fetchBackupJobs: () => Promise<{success: boolean, message: string, errors?: IErrorDetail[]}>
     deleteBackupJob: (id: string) => Promise<{success: boolean, message: string}>
     setBackupJobDeleteModalOpen: (open: boolean, jobId: string) => void
-    createBackupJob: (job: IBackupJob) => Promise<{success: boolean, message: string}>
+    createBackupJob: (job: IBackupJobCreate) => Promise<{success: boolean, message: string, errors?: IErrorDetail[]}>
     setBackupJobCreateModalOpen: (open: boolean) => void
+    fetchBackupJobTypes: () => Promise<{success: boolean, message: string}>
 }
 
 const defaultValues = {
@@ -22,6 +24,7 @@ const defaultValues = {
     backupDeleteModalOpen: false,
     backupJobDeleteId: '',
     backupJobCreateModalOpen: false,
+    jobTypes: [],
 }
 
 const useBackupStore = create<BackupState & BackupActions>((set) => ({
@@ -29,10 +32,19 @@ const useBackupStore = create<BackupState & BackupActions>((set) => ({
     backupJobDeleteModalOpen: defaultValues.backupDeleteModalOpen,
     backupJobDeleteId: defaultValues.backupJobDeleteId,
     backupJobCreateModalOpen: defaultValues.backupJobCreateModalOpen,
+    jobTypes: defaultValues.jobTypes,
     fetchBackupJobs: async () => {
         const response = await automationBackend.getBackupJobs();
         if (response.status == ApiStatus.SUCCESS) {
             set({ backupJobs: response.jobs });
+            return {success: true, message: response.message };
+        }
+        return {success: false, message: response.message };
+    },
+    fetchBackupJobTypes: async () => {
+        const response = await automationBackend.getBackupJobTypes();
+        if (response.status == ApiStatus.SUCCESS) {
+            set({jobTypes: response.jobTypes});
             return {success: true, message: response.message };
         }
         return {success: false, message: response.message };
